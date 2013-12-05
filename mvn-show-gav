@@ -1,0 +1,71 @@
+#!/bin/bash
+
+my_real_path=`realpath $0`
+my_real_path=$(dirname "$my_real_path")
+
+unique=()
+index=0
+longest_entry=0
+
+function main {
+    usage
+    list_all_dependencies
+}
+
+function usage {
+    echo "-----------------------------------------------------------------------------------------------------------------"
+    echo " Show all pom and sub poms from current directory and print their respective package id, group id and version."
+    echo " It is using strace combined with mvn dependency:tree plugin to find all poms."
+    echo " Then is uses xsltproc and realpath combined with the ./resource/pom-to-gav.xsl to extract the informations from each pom."
+    echo
+    echo " Dependencies: "
+    echo
+    echo " - maven"
+    echo " - maven dependency plugin"
+    echo " - strace"
+    echo " - xsltproc"
+    echo " - realpath"
+    echo "-----------------------------------------------------------------------------------------------------------------"
+    echo
+}
+
+function is_not_present {
+    for entry in "${unique[@]}"; do
+        if [ "$1" = "$entry" ]; then
+            return 1
+        fi
+    done
+    index=$(( index + 1 ))
+    unique[$index]=$1
+
+    if [ "${#entry}" -gt "$longest_entry" ]; then
+        longest_entry=${#entry}
+    fi
+    return 0
+}
+
+function format {
+    key=$1
+    if [ "${#key}" -lt "$longest_entry" ]; then
+        for (( i = ${#key}; i < $longest_entry; i++ )); do
+            key=$key.
+        done
+    fi
+    echo $key $2
+}
+
+function list_all_dependencies {
+    gavs=()
+    trace=`strace -f -e open mvn dependency:tree 2>&1`
+    for line in `echo $trace | egrep -o '[^"]+pom.xml'`; do
+        if is_not_present $line; then
+            gavs[$index]=`xsltproc $my_real_path/resources/pom-to-gav.xsl $line`
+        fi
+    done
+
+    for (( j = 1; j <= $index; j++ )); do
+        format ${unique[$j]} ${gavs[$j]}
+    done
+}
+
+main
