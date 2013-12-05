@@ -14,7 +14,8 @@ function main {
 
 function usage {
     echo "-----------------------------------------------------------------------------------------------------------------"
-    echo " Show all pom and sub poms from current directory and print their respective package id, group id and version."
+    echo " Follow from a given maven pom directory all modules and sub modules hierarchy."
+    echo " Prints in discovery order respective module package id:group id:version."
     echo " It is using strace combined with mvn dependency:tree plugin to find all poms."
     echo " Then is uses xsltproc combined with the ./resource/pom-to-gav.xsl to extract the informations from each pom."
     echo
