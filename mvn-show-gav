@@ -16,10 +16,12 @@ function usage {
     echo "-----------------------------------------------------------------------------------------------------------------"
     echo " Show all pom and sub poms from current directory and print their respective package id, group id and version."
     echo " It is using strace combined with mvn dependency:tree plugin to find all poms."
-    echo " Then is uses xsltproc and realpath combined with the ./resource/pom-to-gav.xsl to extract the informations from each pom."
+    echo " Then is uses xsltproc combined with the ./resource/pom-to-gav.xsl to extract the informations from each pom."
     echo
     echo " Dependencies: "
     echo
+    echo " - bash"
+    echo " - dirname"
     echo " - maven"
     echo " - maven dependency plugin"
     echo " - strace"
